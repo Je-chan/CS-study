@@ -103,6 +103,7 @@ CREATE TABLE <table name> <like_table_clause>
 ```sql
 ALTER TABLE <table_name> ADD <column_name> <column_type> [not null] [<default_value>]
 ```
+
 - 기존 컬럼 삭제
 ```sql
 ALTER TABLE <table_name> DROP COLUMN <column_name>
@@ -117,6 +118,15 @@ ALTER TABLE <table_name> ADD CONSTRAINT <constraint_name> <constraint>
 ```sql
 ALTER TABLE <table_name> DROP CONSTRAINT <constraint_name>
 ```
+
+### 2-5) DROP TABLE Syntax
+```sql
+DROP TABLE <table_name>
+
+TRUNCATE TABLE <table_name>
+```
+- DROP 은 테이블을 모두 삭제(카탈로그까지 삭제)
+- TRUNCATE 은 데이터들을 삭제하고 카탈로그는 남겨둔다 
 
 
 
