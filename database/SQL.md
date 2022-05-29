@@ -267,4 +267,62 @@ ON        R.B = S.B AND R.D = S.D
 - FULL outer join 은 지원하는 DBMS 도 있어서 이건 그냥 UNION 사용하는 게 더 나을 듯하다
 
 
+# 4. DML : 데이터 조작
+## 4-1) INSERT
+### 기본
+```sql
+INSERT <table_name> [(<column_name>, ...)] VALUES (value, ...)
+```
+- Optional 인 column_name 을 적지 않으면 전체 컬럼에 대한 Insert 가 된다
+- 구체적으로 Column name 이 지정되면 뒤에서 Value 의 순서에 맞춰서 일대일로 매칭되어 값이 들어간다
 
+### 특이 케이스
+다른 테이블에서 질의 결과를 삽입하는 구문
+```sql
+INSERT INTO <table_name> [(<column_name>, ...)] <select clause>
+
+#Eg
+INSERT INTO STUDENT SELECT * FROM NEW_STUDENTS
+```
+- 이렇게 사용하고 싶다면 Insert 하는 컬럼 리스트와 SELECT 문의 컬럼 리스트가 일치해야 한다. 컬럼이 맞지 않으면 에러가 난다
+
+## 4-2) DELETE
+```sql
+DELETE FROM <table_name> [WHERE CONDITION]
+
+#Eg
+DELETE FROM STUDENT # 모든 컬럼 삭제
+DELETE FROM STUDENT WHERE DEPT_NAME = 'English'
+
+DELETE FROM STUDENT 
+WHERE       DEPT_NAME 
+IN( 
+    SELECT  DEPT_NAME 
+    FROM    DEPARTMENT 
+    WHERE   BUILDING = 'C'
+  )
+```
+- 테이블에서 쿼리에 해당하는 ROW 를 지운다
+- TRUNCATE 와 동일한 결과를 낳지만 내부적으로는 다른 로직이 돌아간다
+
+## 4-3) UPDATE
+```sql
+UPDATE <table_name> SET <column_name> = value [WHERE CONDITION]
+
+#Eg
+UPDATE EMPLOYEE SET SALARY = SALARY * 1.07
+UPDATE EMPLOYEE SET SALARY = SALARY * 1.07 WHERE HIRE_DATE < '2022.01.01'
+
+UPDATE  EMPLOYEE 
+SET     SALARY = SALARY * 1.07 
+WHERE   DEPT_NAME 
+IN(
+    SELECT  *
+    FROM    DEPARTMENT
+    WHERE   LOCATION = "GYEONGGI"
+  )
+
+```
+- 어떤 조건에 맞는 컬럼을 찾아서 Value 를 바꾸라는 것 
+- SET 으로 해당 컬럼의 값을 value 로 바꾸라. 
+- 만약 WHERE 조건문이 없다면 컬럼 전체 값을, 있다면 조건에 맞는 컬럼의 값만을 value 로 수정한다
