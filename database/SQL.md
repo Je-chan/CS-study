@@ -127,10 +127,144 @@ TRUNCATE TABLE <table_name>
 ```
 - DROP 은 테이블을 모두 삭제(카탈로그까지 삭제)
 - TRUNCATE 은 데이터들을 삭제하고 카탈로그는 남겨둔다 
+        
+        
 
+# 3. SELECT, 데이터 조회
+## 3-1) SELECT Syntax
+### <1> SELECT 기본 
+```sql
+SELECT [DISTINCT] {* | <column_name>, ...} FROM <table list>
+```
 
+### <2> SELECT 산술식
+- SELECT Clause 는 산술식을 포함할 수 있다
+```sql
+SELECT ID, NAME, SALARY / 12 FROM EMPLOYEE
+```
 
+## 3-2) SELECT 를 도와주는 CLAUSE, 데이터
+### <1> WHERE
+- 테이블에서 조건에 맞는 데이터만 검색하기 위해 WHERE 를 사용
+```sql
+SELECT [DISTINCT] {* | <column_name>, ...} FROM <table list> [WHERE Condtition]
+```
 
+- 문자열 컬럼인 경우 부분적인 매칭 조건을 만들 수 있다
+  - % : 0개 이상의 문자가 스킵
+  - _ : 1개의 문자를 스킵
+```sql
+# 리베리, 리베로, 리베디히 가능
+SELECT * FROM EMPLOYEE WHERE NAME LIKE '리베%'
+# 리베리, 리베로 가능
+SELECT * FROM EMPLOYEE WHERE NAME LIKE '리베_'
+```
+
+### <2> NULL 
+- null 은 empty 가 아닌 unknown 이다
+  - null 값과 산술 연산 및 비교 연산 결과는 null
+  - 5 + null returns null
+  - null > 5 returns null ...
+
+- null 과 논리 연산
+  - OR : (null OR true) = true / (null OR flase) = null / (null OR null) = null
+  - AND : (null AND true) = null / (null AND false) = false / (null and null) = null
+  - NOT : (NOT null) = null
+
+- IS NULL : null 값을 가진 row 를 찾기 위한 조건식
+  - SELECT NAME FROM CUSTOMER WHERE AGE IS NULL
+
+### <3> ORDER BY
+- SELECT 의 검색 결과를 정렬하기 위해 ORDER BY 키워드를 사용
+  - ASC 는 오름차순 정렬, DESC 는 내림차순 정렬
+```sql
+SELECT    [DISTINCT] {* | <column_name>, ...} 
+FROM      <table list>
+[WHERE    CONDITION]
+[ORDER BY <column_name>, ... [ASC | DESC]] 
+```
+- TUPLE 의 순서는 보장되지 않는다.
+  - 그러므로 INSERT 한 순서대로 나온다는 보장이 없다
+  - 그래서 ORDER 를 사용하는 것
+### <4> AGGREGATION FUNCTION
+- 특정 컬럼의 값을 통계적으로 계산한 결과를 보여주는 SQL 내장 함수
+
+함수의 종류
+- COUNT : 컬럼 값의 개수 (동일한 값이라 하더라도 개수를 센다)
+  - DISTINCT 를 사용하면 값이 동일하면 개수를 세지 않는다
+  - COUNT(DISTINCT ID) 등
+- MAX : 컬럼 값의 최댓값
+- MIN : 컬럼 값의 최솟값
+- SUM : 컬럼 값의 합계 
+- AVG : 컬럼 값의 평균 
+- 다른 COUNT, MAX, MIN 은 LOB 타입을 제외한 모든 타입에서 사용 가능
+- SVG, AVG 는 숫자 데이터만 가능
+
+NULL 핸들링
+- MAX, MIN, SUM. AVG 의 경우 null 이 아닌 값으로만 계산
+  - 컬럼 값이 모두 null 이거나 레코드가 없는 경우 null 을 리턴
+- COUNT 는 null 이 아닌 값의 개수를 출력
+  - 컬럼 값이 모두 null 이거나 레코드가 없는 경우 0 을 리턴
+
+### <5> GROUP BY
+- 테이블에서 특정 컬럼 값이 같은 rows 를 모아 그룹으로 만들고, 그룹별로 검색
+```sql
+SELECT    [DISTINCT] {* | <column_name>, ...}
+FROM      <table list>
+[WHERE    CONDITION]
+[GROUP BY <column_name list> [HAVING CONDITION]]
+[ORDER BY <column_name list> [ASC | DESC]]
+```
+- 그룹에 대한 조건을 추가하려면 HAVING 키워드를 사용한다
+  - WHERE : 레코드를 GROUPING 하기 전에 조건을 검색
+  - HAVING : 레코드를 GROUPING 한 다음에 그룹에 대한 조건 검색. 보통 연산된 결과에 대한 조건
+
+그러므로 
+- GROUP BY 로 명시한 컬럼은 SELECT 로 조회하는 것에 반드시 있어야 한다
+- GROUP 을 나누는 건 AGGREGFATION 하기 위한 용도이므로 함수가 있어야 한다
+- AGGREGATION 은 컬럼의 결과에 대한 통계를 내는 것이므로 
+
+## 3-3) SET (관계 대수 => SQL)
+### Union => UNION
+```sql
+SELECT A, B FROM R UNION SELECT A, B FROM S
+```
+
+### Difference => EXCEPT
+```sql
+SELECT A, B FROM R EXCEPT A, B From S
+```
+
+### Intersection => INTERSECT 
+```sql
+SELECT A, B FROM R INTERSECT A, B From S
+```
+
+## 3-4) JOIN
+### Cartesian Product 
+```sql
+SELECT * FROM r, s
+```
+
+### Natural Join 
+- DBMS 에서 지원 잘 안 해줌.
+- 보통은 쎄타 조인을 한다
+```sql
+SELECT * FROM R Natural join S
+```
+
+### Theta Join (Inner Join)
+- 많은 DBMS 에서 사용되는 Inner JOIN 문
+- ON 이 Theta.
+```sql
+SELECT    R.A, R.B, R.C, R.D, S.E
+FROM      R
+JOIN      S
+ON        R.B = S.B AND R.D = S.D
+```
+
+### OUTER JOIN (LEFT Join, OUTER Join, FULL outer join)
+- FULL outer join 은 지원하는 DBMS 도 있어서 이건 그냥 UNION 사용하는 게 더 나을 듯하다
 
 
 
