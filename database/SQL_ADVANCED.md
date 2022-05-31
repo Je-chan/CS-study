@@ -90,3 +90,46 @@ DROP VIEW <view_name>
 - 전형적으로 트랜잭션은 업데이트에 대한 로그로 적고, 로그가 저장된 후에 트랜잭션이 Commit 으로 간주한다
 - 장애 후, 로그 데이터를 갖고 데이터베이스를 재구성
 
+## 2-2) Transaction Mode
+### Autocommit mode (Default)
+- Statement 가 시작할 때 transaction 이 내부적으로 시작
+- 매 statement 가 끝날 때마다 commit 이 자동으로 실행된다
+- Session Level 로 모드를 변경할 수 있다
+  - SET AUTOCOMMIT = OFF
+  - JDBC L connection.setAutoCommit(false)
+- 다른 커넥션들과는 독립적으로 내가 만든 것에만 바뀐다
+
+### Explicit Mode
+- Auto commit 모드를 끈 후,
+- START TRANSACTIONM (트랜잭션 시작)
+- COMMIT (트랜 잭션의 commit 에서 변경 내용을 데이터 베이스에 저장)
+- ROLLBACK (트랜잭션의 연산들로 변견된 내용을 취소)
+```sql
+START TRANSACTION
+UPDATE accounts SET balance = balance - 5000 WHERE accId = "리베"
+UPDATE accounts SET balance = balance + 5000 WHERE accId = "JE"
+COMMIT
+```
+
+### Transaction Isolation Level
+- SET TRANSACTION statement 로 transaction isolation level 을 바꿀 수 있다
+- Isolation level
+  - READ UNCOMMITTED
+    - 트랜젝션이 처리중에 아직 Commit 되지 않은 데이터를 다른 트랜젝션이 읽는 걸 허용
+    - Dirt Read, 데이터의 일관성을 유지할 수 없다
+  - READ COMMITED (대부분)
+    - Commit 이 된 데이터만 접근해서 읽을 수 있다
+    - 문제점은 한 트랜젝션 안에서 같은 SELECT 가 여러 개 있을 때 먼저 시작한 SELECT 의 내용이 보이게 되어 다른 결과를 리턴할 수 있다
+    - Non-Repeatble Read
+  - REPETABLE READ (MySQL 에서 Default)
+    - 트랜젝션 안에서의 같은 조회는 항상 동일한 결과가 리턴하는 것을 보장
+    - Phantom Read
+  - SERIALIZABLE
+    - 완벽한 읽기 일관성
+```sql
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+```
+- 성능 향상을 위해 DBMS 는 Isolation level 을 조절하는 기능을 제공한다
+- 레벨이 낮을수록 데이터 무결성이 유지되지만 비용이 높아지고 동시성이 떨어진다
+- 여러 트랜젝션이 실행되고 있을 때, 원래의 방식은 Locking 을 걸어서 다른 트랜잭션의 내용을 못 보게 만드는데 Locking 을 건 만큼 성능, 동시성이 떨어지는 것
+- 만약 개발자가 그 Isolation 을 확실하게 지킨다고 한다면 성능을 높일 수 있음
