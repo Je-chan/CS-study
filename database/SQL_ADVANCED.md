@@ -133,3 +133,50 @@ SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
 - 레벨이 낮을수록 데이터 무결성이 유지되지만 비용이 높아지고 동시성이 떨어진다
 - 여러 트랜젝션이 실행되고 있을 때, 원래의 방식은 Locking 을 걸어서 다른 트랜잭션의 내용을 못 보게 만드는데 Locking 을 건 만큼 성능, 동시성이 떨어지는 것
 - 만약 개발자가 그 Isolation 을 확실하게 지킨다고 한다면 성능을 높일 수 있음
+
+# 3. 무결성 제약 조건 (Integrity Constraint)
+## 3-1) CREATE TABLE
+### not null
+- 컬럼 값으로 null 을 허용하지 않을 때 지정
+- name char(10) NOT NULL : 고객 이름 컬럼으로 사이즈 10 이내, 필수 입력 사항이라는 뜻
+
+### Unique
+- 튜플에 유일성을 체크하는 대체 키를 지정
+- null 을 허용
+
+### primary key
+- 테이블에서 튜플(row)을 찾는 기본 키
+- Unique + not null
+- 만약 같은 값이 이미 테이블에 존재하거나 null 을 입력하려고 하면 INSERT 실패
+
+### Check(p) : predicate
+- 특정 속성에 값의 도메인을 check 키워드를 사용하여 지정할 수 있다
+- 즉, 도메인의 값을 단순 타입이 아니라 조건까지 추가하는 것
+
+
+## 3-2) 참조 무결성 (Referential Integrity)
+- 관계 데이터베이스 관계 모델에서 2개의 관련 있는 테이블 간의 일관성 (데이터 무결성)을 유지하는 것
+- 참조 무결성을 정의하기 위해 Foreign key (외래키) 를 지정
+- Foreign key 에 포함되는 컬럼은 참조하는 부모 테이블의 Primary key 또는 Candidate Key 여야 한다
+```sql
+FOREIGN KEY (<column_names>) REFERENCES <parent_table_name>
+(<column_names>)
+  [ON DELETE reference_option]
+  [ON UPDATE reference_option]
+```
+- 위의 ON DELETE, ON UPDATE 는 parent 테이블에 각각 DELETE, UPDATE 가 일어날 떄 어떻게 할 것인지를 설정하는 것 (참조 무결성을 위한 것)
+
+### 사용할 수 있는 reference_option
+```sql
+# 튜플을 삭제하지 못하게 만든 방법 (default)
+ON DELETE(UPDATE) NO ACTION 
+
+# 관련된 튜플을 함께 삭제하는 방법
+ON DELETE(UPDATE) CASCADE
+
+# 관련된 튜플의 외래키 값을 NULL 로 설정하는 방법
+ON DELETE(UPDATE) SET NULL
+
+# 관련된 튜플의 외래키 값을 default 값으로 설정하는 방법(default 가 없으면 에러)
+ON DELETE(UPDATE) SET DEFAULT
+```
