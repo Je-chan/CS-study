@@ -44,3 +44,64 @@ STEP 3. 요구 사항 명세서 바탕으로 E-R 다이어그램 표현
 - 저장 레코드 타입 및 인덱스 타입 등을 설꼐
 - Relational Schema 로 물리적 스키마를 만듦
 
+# 2. E-R 다이어그램
+## 2-1) E-R Model (Entity Relation Model)
+- 요구 사항에서 얻어 낸 정보를 개체(Entity), 속성(Attribute), 관계성(Relation) 으로 기술하는 모델
+- 표현 방법은 두 가지
+  - Chen Notation
+  - Crow's Foot Notation
+
+## 2-2) 개체(Entity)
+- 저장할 만한 가치가 있는 중요 데이터를 가진 사람이나 사물
+- 개체들의 집합을 Entity Type 이라 한다
+- Chen Notation 에서 네모로 표현
+- Weak Entity
+  - 포함된 속성만으로 고유하게 식별할 수 없는 개체를 뜻함
+  - Weak Entity 는 본인을 소유하는 Entity 에 의존한다
+  - 이런 경우 중첩 네모를 사용한다
+  - 예를 들어, Order Item(주문 상품) 은 주문(Order) 에 종속적이다
+  - Order 에서 어떤 아이템을 샀는지, 리스트가 나오기 떄문. Order 없이 Order Item 이 없다
+
+## 2-3) 속성(Attribute)
+- Attribute 는 이름을 포함한 원으로 표현된다
+### Key Attribute
+- 특정 Entity 를 식별할 수 있는 고유한 값을 가진 Attribute
+- 이름에 밑줄을 그린다
+### Multivalued Attribute
+- 하나의 Attribute 가 여러 개의 값을 가질 수 있는 경우
+- 중첩 원으로 표현
+- 그러나 사실, 논리 단계에서 이런 경우는 없어야 한다.
+### Derived Attribute
+- 다른 Attribute 들로부터 계산되어 나온 Attribute
+- 점선으로 된 원으로 표현
+
+### Composite Attribute
+- Attribute은 객체에도 링크가 될 수 있고 다른 Attribute에도 링크가 걸릴 수 있다
+- Attribute을 가진 Attribute 라는 의미
+
+## 2-4) 관계(Relation)
+- Entity 간 어떤 상호작용을 하는지 표현하는 Notation
+- Relationship 이름을 포함한 다이아몬드(마름모)로 표현
+- Relationship 도 Attribute 을 가질 수 있다
+- Weak (identifying) relationship
+  - Weak Entity 와 parent-child 관계에서 상호작용을 표현
+
+## 2-5) Cardinality (Degree of Relationship)
+- 관계를 맺는 두 Entity 에 대해 한 개체가 얼마나 많은 다른 개체와 관련될 수 있는 지 표현
+### 매핑 
+- 1, N, M 으로 나타낸다
+  - 일대일 (1:1)
+  - 일대다 (1:N)
+  - 다대일 (N:1)
+  - 다대다 (M:N)
+
+### 참여 특성
+- Entity set 이 Relationship 에 전체로 참여하는지, 부분적으로 참여하는지 표현
+  - Total Participation
+    - 모든 Entity 가 Relationship 에 참여
+    - Double line 으로 표현
+  - Partial Participation
+    - Entity Set 에서 일부분만 Relationship 에 참여
+    - Single line 으로 표현 
+        
+        
