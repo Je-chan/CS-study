@@ -180,3 +180,58 @@ ON DELETE(UPDATE) SET NULL
 # 관련된 튜플의 외래키 값을 default 값으로 설정하는 방법(default 가 없으면 에러)
 ON DELETE(UPDATE) SET DEFAULT
 ```
+
+# 4. SQL DCL : 접근 권한
+## 4-1) 권한 관리 
+- Authentication : DBMS 에 보안 유지를 위해 계정을 가진 사용자가 접속할 수 있게 해주는 접근 제어
+```sql
+CREATE USER <user_name> IDENTIFIED BY 'password'
+```
+
+- Authorizaition : 접속한 사용자의 사용 범위와 권한을 정의하는 것
+- 사용권한 : 데이터베이스의 모든 객체는 해당 객체를 생성한 사용자만 사용 권한을 가진다
+  - DML 할 수 있는 권한, 데이터베이스를 지울 수 있는 권한 등을 의미
+  - 그러나 만든 사람만 접근 가능하면 공유가 되지 않고 일의 효율이 떨어지므로 권한을 부여
+- 권한 부여 : 여러 사용자가 공유해서 사용할 목적으로 다른 사용자들에게 자신의 객체에 대한 권한을 부여
+- 권한 부여해줄 수 있는 Privilege 종류(기본적)
+  - SELECT
+  - INSERT
+  - UPDATE
+  - DELETE
+  - REFERENCES : 다른 사용자가 내 테이블에 Foreign key 만들 수 있는지
+
+## 4-2) GRANT
+- 객체의 소유자가 다른 사용자에게 객체 사용 권한을 부여하기 위해 사용되는 SQL
+```sql
+GRANT <privilege list> ON <view or table name> TO <user list> [WITH GRAMT OPTION]
+<user list>
+  - database user
+  - public
+  - role name
+```
+- View 에 대한 권한을 주었다고 View 가 바라보는 베이스 테이블에 대한 사용권한이 주어지는 건 아니다
+- WITH GRANT OPTION
+  - GRANT 로 부여 받은 권한은 기본적으로 다른 사용자에게 부여할 수 없다
+  - 하지만 이 옵션으로 부여 받은 권한은 다른 사용자에게 부여 가능
+
+## 4-3) REVOKE
+- GRANT 로 준 권환을 취소하는 것
+```sql
+REVOKE <privilege list> ON <view or table name> FROM <user list> CASCADE | RESTRICT
+```
+- CASCADE
+  - WITH GRANT OPTION 으로 부여된 모든 권한을 연쇄적으로 다 취소
+- RESTRICT
+  - 만약 WITH GRANT OPTION 을 받은 사용자가 3자에게 권한을 준 경우 REVOKE 실패
+
+## 4-4) ROLE
+- 여러 사용자에게 동일한 권한을 부여하고 취소하는 작업
+  - ROLE 에 권한을 부여
+  - 다른 사용자들에게 ROLE 을 GRANT
+```sql
+CREATE ROLE <role_name>
+GRANT <privilege list> ON <view or table name> TO <role_name>
+GRANT <role_name> TO <user_list> 
+REVOKE <role_name> FROM <user_list>
+DROP ROLE <role_name>
+```
