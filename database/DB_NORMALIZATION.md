@@ -115,3 +115,34 @@
   - 이런 경우 성능 향상을 위해서 낮은 수준의 정규화를 추구하기도 한다.
   - 일부 쓰기 성능의 손실을 감수하고 데이터를 묶거나 데이터의 복제 사본을 추가
   - 데이터베이스의 읽기 성능을 개선하려고 시도
+
+### 제 4 정규형 (4NF)
+
+- BCNF 를 만족하고 릴레이션의 모든 Nontrivial multi-valued dependency X ->-> Y 의 경우 4정규형에 맞다고 한다
+
+- Multi-valued dependency (X ->-> Y )
+
+  - 함수적 종속성과 달리 이 조건은 튜플이 생성될 때 속성들 사이의 관계를 의미
+  - 릴레이션에 3개 이상의 속성이 있을 때 존재한다.
+    - X 값이 Y 값의 집합과 Z 값의 집합을 갖는다
+    - Y와 Z는 서로 독립적이다
+
+- Trivial multi-valued dependency
+
+  - If Y is a subset of X
+  - OR X U Y is while set of Relation
+
+### 제 5 정규형 (5NF, PJNF) - Project Join Normal Form
+
+- Join Dependency : 릴레이션 T 의 부분 속성 집합(projection table of T) {A, B, C} 를 조인한 결과가 릴레이션 T와 같을 때 JD(Join Dependency) 를 만족한다고 한다
+- 제 5 정규형의 조건
+  - 릴레이션에 존재하는 모든 Join Dependecy 가 기존 릴레이션의 슈퍼키를 가질 때 만족한다
+  - 여러 릴레이션으로 분해했을 때 나눠진 릴레이션이 기존 릴레이션의 슈퍼키를 가지고 더이상 무손실 분해가 불가능할 때 만족한다
+
+### 제 6 정규형
+
+- Primary key 와 단 한 개의 속성만 갖는 경우
+- 하나의 Entity 를 표현하기 위해 많은 테이블이 필요하고, 데이터 업데이트할 때 여러 테이블을 함께 업데이트 하기에 OLTP 에 좋지 않다
+- Analytics Query(OLAP) 을 중시하는 datawarehouse 솔루션들은 내부적 저장 포맷을 column-based 로 해서 6NF 와 비슷한 포맷으로 저장한다
+  - Aggregation 과 같은 range query 에 빠른 성능
+  - Compression 이 잘 되어 저장 공간을 절약
