@@ -103,5 +103,51 @@ STEP 3. 요구 사항 명세서 바탕으로 E-R 다이어그램 표현
   - Partial Participation
     - Entity Set 에서 일부분만 Relationship 에 참여
     - Single line 으로 표현 
-        
-        
+    
+# 3. 릴레이션 스키마 변환
+## 3-1) 논리적 설계
+- 관계 모델을 통해 개념적 모델을 논리적으로 표현
+- 개념적 스키마를 논리적 스키마로 변경하는 과정
+- E-R 다이어그램과 관계 데이터 모델의 차이점
+  - E-R 모델은 Entity 와 Relationship 을 구분하지만 관계 데이터 모델은 모두 릴레이션으로 표현
+  - E-R 모델은 Multivalued Attribute, Composite Attribute 를 표현하지만, 관계 데이터 모델은 그런 속성 허용하지 않음
+  - E-R 모델의 Cardinality, Participation Constraint 도 관계 데이터 모델이서는 그에 맞는 변경이 필요
+
+## 3-2) 릴레이션 스키마 변환 규칙
+### 1. 모든 개체는 릴레이션으로 변환한다
+  - Entity Name -> Relation Name
+  - Entity Attribute -> Relation Attribute
+  - Entity Key Attribute -> Relation Primary key
+  - Compose Attribute (복합 속성) 이 있는 경우는 Compose Attribute 의 Attribute 를 Relation 의 Attribute 로 변경
+    - 한 마디로 풀어서 쓰면 된다는 것
+
+### 2. 다대다(n:m) Relationship(관계)는 릴레이션으로 변환한다
+- Relationship Name -> Relation name
+- Relationship Attribute -> Relation Attribute
+- 관계에 참여하는 기본 키를 관계 릴레이션에 포함시키고 외래키로 지정한다
+  - 같은 이름이 이미 존재하면 이름을 변경해야 한다
+
+### 3. 일대다(1:n) Relationship(관계)는 외래키로 표현한다
+- 1:n 관계에서 1측 Entity 릴레이션의 기본키를 n측 Entity 릴레이션에 포함시켜 외래키로 지정한다
+- Relationship 의 Attribute 들도 n측 릴레이션에 포함시킨다
+- Weak Entity 의 경우, 기본키를 Parent entity 의 기본키를 외래키로 받은 후, 그 키를 포함해서 기본키를 만든다
+
+### 4. 일대일(1:1) 관계는 외래키(Foreign Key)로 표현한다
+- 일대일(1:1) 관계도 일대다(1:n) 와 마찬가지로 릴레이션이 아닌 외래키로 표현한다
+- 데이터 중복을 피하기 위해 참여 특성에 따라 다르게 처리한다
+  - 4-1) 일반적인 일대일 관계는 외래키를 서로 주고 받을 것
+    - 관계에 참여하는 개체 릴레이션들이 서로의 기본 키를 외래키로 지정
+    - 관계의 속성들도 모두 개체 릴레이션에 포함
+    - 단, 데이터 중복이 발생할 수 있으므로 관계(Relationship)를 릴레이션으로 바꾸지 않는 것을 추천한다 
+  - 4-2) 일대일 관계에 필수적으로 참여하는 개체가 잇는 경우, 필수 참여 개체의 릴레이션만 외래키로 받을 것
+    - 일대일 관계에 필수적으로 참여하는 개체가 있는 경우, 필수 참여 개체의 릴레이션만 외래키로 포함시킨
+    - 관계의 속성들은 필수적으로 참여하는 개체의 릴레이션에 포함시킨다 (필수인 한 쪽만 가지면 되기 때문)
+  - 4-3) 모든 개체가 일대일 관계에 필수적으로 참여하면 릴레이션을 하나로 합칠 것
+    - 관계에 참여하는 개체 릴레이션들을 하나의 릴레이션으로 합친다
+    - 관계 이름을 릴레이션 이름으로 사용, 참여하는 두 개체의 속성들을 다 포함시킨다
+    - 두 개체 릴레이션의 키 속성을 조합하여 기본키로 만든다
+    - 관계의 속성들은 필수적으로 참여하는 개체의 릴레이션에 포함시킨다
+
+### 5. Multivalued Attribute(다중 값 속성) 은 릴레이션으로 변환한다
+- 다중 값 속성과 그 속성을 가지고 있던 개체의 기본키를 외래키로 포함시킨다.
+- 다중 값 속성으로 만들어진 새로운 릴레이션의 기본키는 다중값 속성과 외래키를 조합하여 지정한다.
