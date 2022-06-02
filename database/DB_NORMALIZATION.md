@@ -76,3 +76,42 @@
 
 - Pseudo transitive Rule
   - If X -> Y AND YZ -> W THEN XZ -> W
+
+# 2. 정규형의 종류
+
+- UNF(Unnormalized Form) 을 정규화 해서 만든 것이 정규형
+- UNF 는 기본키를 가지고 있고, 튜플을 식별할 수 있어야 한다
+
+## 2-1) 제 1 정규형(1NF) : First Normal Form
+
+- 릴레이션에 속한 속성들은 원자값을 갖도록 해야 한다
+  - Subject 가 여러 값을 갖고 있다면 다른 릴레이션으로 분리해야 한다
+  - 릴레이션의 기본키를 분리된 릴레이션의 외래키로 추가한다
+
+## 2-2) 제 2 정규형(2NF) : Second Nornal Form
+
+- 1NF 를 만족하고 기본키가 아닌 속성들은 기본키의 일부가 아닌 기본키 전체에 함수적 종속해야 한다
+  - 키에 속하지 않는 나머지 속성들은 다 Primary key 에 함수적 종속성에 맞아야 한다
+  - 부분적으로 종속되는 경우를 나눠야 한다.
+- Title 에 종속적인 컬럼만 가진 릴레이션과 Format 에 종속적인 릴레이션을 분리해야 한다
+
+## 2-3) 제 3 정규형(3NF) : Third Normal Form
+
+- 2NF 를 만족하고 이행적 종속(Transitive Functional Dependency) 가 없어야 한다
+- 즉, 추론 규칙에서 Transitive Rule 과 관련된 것들은 쪼개야 한다는 것
+  - 함수적 종속 관계가 슈퍼키에서 시작하거나
+  - prime Attribute(candidate key 에 포함된 Attribute) 로 끝나야 한다
+- 3NF 을 만족했다면 정규화 됐다고 한다.
+
+### 제 3.5 정규형 (BCNF) : Boyce-Codd Normal Form
+
+- 3NF 에서 조금 더 강화된 버전
+- 모든 함수 종속 관계에서 X 로 가능한 집합의 속성이 모두 슈퍼키이면 BCNF 를 만족한다
+
+### 역 정규화 (Denormalization)
+
+- 정규화가 잘 되면 OLTP, Insert Update Delete 에서는 좋은 모습을 보이지만
+- Analytic Query 를 주로 실행하는 OLAP 애플리케이션인 경우 비용이 많이 든다
+  - 이런 경우 성능 향상을 위해서 낮은 수준의 정규화를 추구하기도 한다.
+  - 일부 쓰기 성능의 손실을 감수하고 데이터를 묶거나 데이터의 복제 사본을 추가
+  - 데이터베이스의 읽기 성능을 개선하려고 시도
