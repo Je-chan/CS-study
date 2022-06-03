@@ -73,3 +73,61 @@ Page Buffering Proccess
   - 앞 부분이 Pointer 의 Offset 이 되어 사이즈의 개념으로 저장된다
   - 사이즈가 저장되면 Value 가 커지기 때문에 사이즈가 아닌 Offset 으로 저장하는 것
 - 두 번째 방법이 field 에 대한 direct access 가 가능하고, null 을 위한 저장 공간 효율성을 제공한다
+
+# 2. 인덱스 (Index)
+
+## 2-1) 인덱스란?
+
+- SQL 을 배울 때, Search 성능을 높이거나 Unique 체크 - Key Search 를 위해서 인덱스를 생성한다
+- 특정 기준에 맞는 rows 를 빠르게 찾기 위해 사용한다
+- Trade-off 발생
+  - Search 성능은 향상
+  - 인덱스를 관리하는 비용 발생 (DML 성능 저하. Record 가 새롭게 Insert 할 때마다 Index Space 도 추가되기 떄문)
+  - 인덱스를 저장하기 위한 Space 사용 증가
+- Search Key
+
+  - Index 검색을 위해 사용되는 Column 또는 Column 의 집합
+  - Create Index 를 할 때, Column name 을 주어 Index 를 Search 하기 위함
+  - 한 테이블에서 다른 Search key 를 가지는 다수의 Index 가 생성 가능하다
+    - Primary key, Candidate Key 등등
+    - 그러나 인덱스가 많아질수록 성능이 저하되므로 필요한 인덱스만 만들어야 한다
+
+  ### 인덱스를 만들 때 고려할 사항
+
+  - 인덱스를 언제 사용할 것인가?
+    - 정확하게 Key 와 일치하는 row 를 찾을 때 사용?
+    - Range Query 에 사용? (values between, >, <= 등)
+    - 테이블에 모든 Row 를 조회할 때 사용? (굳이 Index 사용하시게요..?ㄷ)
+  - 테이블이 얼마나 자주 업데이트 되는가?
+    - DML 은 index 관리를 위한 UPDATE 가 발생
+  - 인덱스의 key 가 super key 인가, primary key 인가
+  - 하나의 key 로 여러 row 들이 가능한가? Unique or Not
+
+## 2-2) 인덱스의 종류
+
+### Tree(Ordered) Index
+
+- Tree Index 는 Search Key 의 순서로 Index entry 가 정렬
+- Range Query 나 Order by Operation 에 유리
+- B+ Tree 가 주로 사용
+
+### Hash Index
+
+- Index Query 위치를 Hash Function 을 이용해서 Bucket 의 위치를 지정하여 저장
+- Search 에 효율성 : O(1)
+- DML 이 발생할 때 Index 관리에 유리하다
+
+## 2-3) Index on SQL
+
+- DBMS 는 다음의 경우에 Index 를 생성한다
+
+  - Primary Key
+  - Unique Constraint
+
+- Create index statement in SQL
+
+```sql
+CREATE [UNIQUE] INDEX <index_name> [using<index type>] ON <table_name> (index_column_name, ...)
+
+index_type : HASH, BTREE
+```
