@@ -1,0 +1,75 @@
+# 1. Storage 와 파일 구조
+
+## 1-1) DBMS Storage
+
+- DBMS 는 데이터를 "Hard" Disk 에 저장 (영원히 지워지지 않게 만드는 것)
+- Disk Access 가 DBMS 의 성능에 가장 중요한 문제
+  - READ : Disk => Main Memory 로 데이터 전송
+  - WRITE : Main Memory => Disk 로 데이터 전송
+  - Higher cost than memory access
+  - DBMS Storage 엔진은 Disk Access 를 어떻게 하면 줄일지에 중점을 두고 개발됨
+- Main Memory 에 모두 저장할 수 없는 이유?
+  - 메모리 가격이 비싸고
+  - 메모리에 저장된 데이터는 volatile
+- DBMS Storage 의 역할은 효과적인 Memory - Disk 데이터 전송을 위한 Buffer Management
+- In Memory DB
+  - 데이터베이스의 내용을 모두 메모리에 올리는 특성화된 DB
+  - Disk Access 를 최소화해서 Disk Access Operation 에 드는 Cost 를 최소화
+  - 모든 걸 다 In Memory 에 넣기 때문에 큰 메모리가 필요하고 Volatile 하고, Logging 은 똑같이 한다
+  - 대신 좋은 성능
+
+### Disk space Management
+
+- DBMS 에서 가장 낮은 Layer 에서 Disk Space 를 관리
+  - 데이터가 테이블을 저장할 때, 테이블을 각각의 작은 page로 만든다.
+  - 그 후, page의 List 를 테이블 컨테이너를 구성한다.
+  - page 단위로 메모리에 올라오고 내려온다고 보면 됨.
+- 상위 Component 에서 다음과 같은 Request 를 요청한다
+  - Allocate & De-Allocate a page
+  - READ & WRITE a page
+- Disk 는 하드웨어 차원에서 발생하는 seek delay, rotation delay 문제가 있다
+  - 즉, Random Access 일 때 가장 성능이 안 좋다
+  - 그래서 페이지들이 최대한 Sequential 하게 Allocate 하고 각 페이지들을 위에서 찾을 때 가장 근처에서, Sequential 하게 찾을 수 있도록 해야 한다.
+
+### Buffer Management
+
+- 페이지를 Read 하고 넣는 과정 중에 Main Memory 에 페이지를 저장하는 것이 Buffer
+- Buffer 는 메모리 사이즈는 한정돼 있지만 데이터는 커서 LRU 에 의해 캐시 메커니즘으로 쓰지 않는 것은 없어지고 새로운 페이지로 채워진다. 버퍼 페이지 캐시 역할.
+- 위에서 한 페이지를 읽고자 할 때 페이지에 대한 offset, 페이지의 ID 를 주면 Disk 의 Tablespace 에서 그 페이지를 읽는다.
+- 버퍼는 각각의 페이지가 들어갈 수 있는 곳(프레임) 을 찾아서 로케이션 시킨다.
+- page pin 은 이 페이지는 현재 쓰고 있다는 것을 의미. Buffer full 이 나도 이 페이지를 Reclaim, 삭제하지 말라고 마크하는 것. unpin 은 다 썼으니 공간이 부족하면 내려도 된다고 표시하는 것
+- Buffer Management Free 프레임이 없을 때 unpin List 를 찾아서 없앤다
+
+Page Buffering Proccess
+
+- Buffer Pool 에서 Page 를 저장할 Frame 을 선택
+  - Free Frame 이 있으면 선택
+  - 없다면, Replacemkent policy (LRU) 에 의해서 오래된 Frame 을 Unpin 하고 이후에 Frame 을 결정
+- Page 를 Disk 에서 읽고 Frame 에 저장
+- Pin : pin_count ++, page 를 사용하는 사용자가 있음을 표시. -pin_count 가 0인 경우에만 replacement 대상
+- Page 사용자는 사용이 끝나면 page 에 대한 Unpin 을 불러줘야 한다.
+  - 만약, 업데이트 하는 상황이라면 Dirty Flag 를 세운다
+  - 이 페이지는 Disk 에 내려갈 수 있고 내려갈 때, Tablespace 에 업데이트 해줘야 한다는 것을 의미
+- 읽는 page list 가 예측되면 성능 향상을 위해서 prefetch 기능을 제공한다
+  - 디스크의 페이지가 5개 할당 돼 있다고 하면,
+
+## 1-2) Format in File
+
+### Record Formats : Fixed Length
+
+- 모든 필드의 타입과 사이즈에 대한 정보가 System catalog 에 저장
+- 이 메타 데이터를 기반으로 해서 고정된 사이즈로 Record 를 저장
+- 장점은 사이즈를 알고 있기 때문에 Record 점핑이 한 번에 가능하다. ACCESS 가 빠르다
+  - 팔요한 Field Access 할 때 Pointer 연산으로 빠르게 주소를 반환할 수 있는 것
+- 단점은 필요하지 않은 공간까지 만든다는 것
+
+### Record Formats : Variable Length
+
+- 대부분 이 포맷을 사용함. (자주 사용하는 Varchar 만 보더라도 사이즈가 유동적)
+- 첫 번째 방법
+  - Field Count 를 저장하고, 각각의 Field 에 Delimited 를 심어준다
+- 두 번째 방법
+  - Field Offset 을 배열로 앞에 저장한다
+  - 앞 부분이 Pointer 의 Offset 이 되어 사이즈의 개념으로 저장된다
+  - 사이즈가 저장되면 Value 가 커지기 때문에 사이즈가 아닌 Offset 으로 저장하는 것
+- 두 번째 방법이 field 에 대한 direct access 가 가능하고, null 을 위한 저장 공간 효율성을 제공한다
