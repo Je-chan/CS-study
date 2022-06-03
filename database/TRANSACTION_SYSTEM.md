@@ -95,6 +95,8 @@ Serializable Schedule
 
 - Serial 스케쥴과 View Equivalnet 한 스케쥴
 - conflict serializable 인 스케쥴을 포함
+- 그렇기에 View Serializable 하다고 해서 항상 Conflict Serializable 한 것은 아니다
+  - Blind Write 가 존재할 수 있기 때문
 
 ## 2-4) Precedence Graph
 
