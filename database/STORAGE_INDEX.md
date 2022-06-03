@@ -131,3 +131,49 @@ CREATE [UNIQUE] INDEX <index_name> [using<index type>] ON <table_name> (index_co
 
 index_type : HASH, BTREE
 ```
+
+# 3. B+ Tree Index
+
+## 3-1) B+ Tree
+
+- DBMS 에 Index 로 사용되는 Tree Structure
+- 같은 레벨의 모든 Leaf 노드에 key 와 실제 data pointer 를 저장
+- Components
+  - Root Node (적어도 두 개의 Childeren 을 가질 때)
+    - Search 를 시작하는 Node
+  - Non-leaf Node
+    - key 를 찾아가기 위한, key 의 range 를 나타내기 위함
+  - Leaf Node
+    - 실제 레코드에 대한 Rid, key 가 저장
+- 차수 n(Order n) 는 노드 사이즈를 결정한다
+  - Size of Node = ( n + 1 ) pointers + n key
+
+## 3-2) Insert Into B+ Tree
+
+### <1> Leaf Node 에 공간이 있는 경우
+
+- 빈 공간에 새로운 key 를 넣을 수 있다면 간단하게 구현 가능
+- 바로 키를 추가해서 Insert 를 완료
+
+### <2> Leaf Overflow Case
+
+- Sorting 기준에 맞춰 값이 추가 돼야 하는 Leaf-Node 가 가득 차 있는 경우
+- (1) 새로운 Leaf-Node 를 만들어서 기존에 가득 차 있던 Node 를 쪼갠다
+- (2) 새롭게 추가하려는 Key 를 기준으로 왼쪽으로 정렬해야 하는 것들을 새로 생성한 Leaf-Node 에 할당한다
+- (3) 새롭게 추가하려는 Key 는 기존의 Leaf-Node 에 값을 넣는다
+  - (\*) 혹은 새롭게 추가하려는 Key 와 그것 기준 오른쪽으로 정렬해야 하는 것들을 새로운 Leaf-Node 에 할당한다
+- (4) Non-Leaf Node 에 새롭게 추가했던 Key 값을 넣어 Pointer 를 위한 Ragne 를 새롭게 정의한다
+
+### <3> Non-Leaf Overflow Case
+
+- Non-Leaf Overflow 현상이 발생한다는 건 Leaf Overflow가 발생해서 새롭게 Non-Leaf Node 에 키값을 주어야 하는데 가득 차 있다는 것을 의미
+
+- (1) 새로운 Leaf-Node 를 만들어 할당하는 건 Leaf Overflow Case 와 동일
+- (2) Sibling 위치에 Non-Leaf Node 를 새롭게 생성하고 Overflow 된 Non-Leaf Node 중 하나의 key 값을 새롭게 생성한 Node 에 옮긴다 (효율에 근거)
+- (3) 새롭게 추가하려는 Key 는 해당 Non-Leaf Node 의 부모 Node 에 올라가서 새롭게 할당한다
+  - (3-1) 만약, 그 부모의 Node 마저 Overflow 현상이 발생하면 위의 과정들을 반복한다
+- (4) 이후 새롭게 만들거나 쪼개진 Non-Leaf Node 의 Pointer 를 새롭게 지정한다
+
+### <4> New Root Case
+
+- Non-Leaf 와 비슷하게 올라간다.
