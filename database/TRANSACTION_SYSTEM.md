@@ -173,3 +173,57 @@ Serializable Schedule
 ### Fuzzy Checkpoint
 
 - Checkpoint 하는 동안 다른 Operation Block 을 오래 하는 것을 막기 위해 Checkpoint 할 때 UPDATE 를 허용하는 방식
+
+# 4. 병행 제어(concurrecy)
+
+## 4-1) Lock Protocol
+
+### Locking Protocol in DBMS
+
+- 동시에 실행되는 트랜젝션 간 Serializable 스케쥴을 만들어 주는 메커니즘
+- Lock 을 획득하기 전에 데이터에 읽거나 쓰는 동작을 할 수 없게 해서 동시성 문제를 해결한다
+- Lock-Manager in DBMS
+  - 모든 Lock 에 대한 Request 처리
+  - Lock 에 대한 정보(어떤 트랜젝션이 어느 Object 에 대한 Lock 을 갖고 있는가)를 Hash Table 에 저장하여 관리
+  - 내부적으로 Lock Manager 가 Hash table 로 Lcok 의 상태를 Request 가 있을 때마다 업데이트
+- Lock 종류
+
+### Lock 의 종류
+
+- Shared Lock
+  - READ ONLY Lock
+  - READ 트랜젝션 간에 Share 가 가능
+  - Write 를 위한 Exclusive Lock 인 경우 Block
+- Exclusive Lock
+  - READ WRITE Lock
+  - 딱 정확하게 이것에 대해서는 나만 접근할 수 있다의 컨셉
+  - 대상이 되는 아이템을 베타적으로 Hold 한다
+  - READ / WRITE 모든 Operation 을 Block 시킨다
+- Lock 은 트랜젝션이 커밋될 때 Release 한다
+
+### Dead Lock
+
+- 여러 트랜젝션들이 서로 각각의 Lock 을 잡고 상대 트랜젝션이 잡은 Lock 을 잡아서 무한정 기다리게 되는 상황
+- DBMS 의 Lock Manager 는 deadlock detect 하고 dedlock이 되는 트랜젝션을 롤백한다
+
+### Two phase locking protocol
+
+- Serializable 스케쥴을 만들기 위해 Lock 의 acquire / require 순서를 정하는 프로토콜
+- Growth Phase
+  - Operation 하기 전에 필요한 Lock 을 다 잡는다
+  - Lock Acquire 하는 단계
+- Shrinking Phase
+  - Operation 이 끝났을 때 Lock 을 Release 해야 한다.
+  - Lock release 하는 단계
+
+### MVCC
+
+- Locking 에서 오는 성능 문제를 개선한다
+- 위의 방법들은 옛날 방식. MVCC 는 많은 DBMS 에서 현재 사용하는 동시성 제어 기법
+- READ 에서 Shared Lock 을 잡지 않는다. MVCC 를 지원해서 Locking 에서 오는 성능 문제를 해결한다
+- 데이터 업데이트가 있을 때 이전의 데이터를 덮어 씌우는 게 아니라 새로운 버전의 데이터 버전 Space 를 저장하고 Link 를 생성한다
+- 데이터를 조회할 때 트랜젝션의 시작 시점에 맞는 데이터 버전을 반환한다
+  - READ Operation 은 Lock 을 하지 않으므로 WRITE 도 그만큼 빨라진다
+  - Lock Protocol 을 사용하는 DBMS 보다 더 좋은 성능을 보인다
+- 버전에 대한 garbage collection 이 필요하긴 함
+  - 버전이 있을 때마다 Link 가 있어서 Clean up 을 해줘야 하기 때문
