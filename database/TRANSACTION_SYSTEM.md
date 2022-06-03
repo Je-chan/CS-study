@@ -123,3 +123,53 @@ Serializable Schedule
 - Cascading Schedule 은 복구 불가능한 스케쥴을 만든다.
 - 그렇기에 Cascade-less 한 스케쥴이 Recoverable 한 스케쥴이 된다
   - 다른 트랜잭션들은 commit 후에 변경된 데이터를 읽는다는 것
+
+# 3. 회복 (recovery) 시스템
+
+## 3-1) Crash Recovery (회복)
+
+- Recovery 란 시스템에 장애가 일어나고 DBMS 가 다시 실행됐을 때, 그 상태가 Consistent 하게 만드는 것
+- Recovery 는 다음의 트랜잭션 특성과 관계가 있다
+  - Atomicity : 트랜젝션의 Operation 들이 실행 중에 장애를 발생시키면 실행된 Operation Rollback
+  - Durability : 장애 후에도 Commit 된 트랜젝션의 데이터는 영원히 저장
+  - 즉, 장애가 발생했을 때 커밋이 되지 않은 건 Rollback, 커밋된 건 계속 저장된 상태로 남아야 한다
+
+## 3-2) Logging
+
+- DBMS 에서 Recovery 는 Logging 을 통해서 가능해진다
+- log는 데이터베이스의 변경 내용을 저장하고 있는 파일. DBMS 는 Database 에 데이터를 저장하기 위해 Disk Tablespace, Checkpoint Images, Log 이렇게 갖고 있다.
+- 데이터베이스가 크래시가 나서 내려갔다가 다시 올라오면 Disk Tablespace 에 있는 것들을 읽으면서 Checkpoing로 올리고 Log 를 읽으면서 리플레이를 할 것인지 등 Recovery 과정을 거쳐서 데이터베이스가 Active 해지면 Consistent State 를 유지하는 것
+
+### Aries Recovery Algorithm
+
+- 가장 많이 쓰는 것. 현재 모든 DBMS 가 이 방식을 따르고 있다
+- WAL(Write Ahead Log)
+  - 디스크에 변경된 내용을 적기 전에 반드시 로그가 안전한 Storage 에 저장돼야 한다
+  - 변경된 내용을 디스크에 log record 를 먼저 기록해야 한다 (Atomicity 보장)
+  - Commit 전에 모든 log record 들이 저장돼야 한다 (Durability 보장)
+
+### UNDO Log
+
+- Crash 후에 commit 되지 않은 변경 사항들을 UNDO(원복) 할 때 사용
+  - 모든 액션은 UNDO Log Record 에 생성 (old 값을 포함)
+  - Disk 에 업데이트 하기 전 Log Record 를 Disk 에 적음 (WAL 방식)
+  - Commit 로그가 flush 되기 전 트랜젝션의 모든 체인지를 Disk 에 반영
+  - Commit 로그가 반영된다는 게 Durability 를 반영했다는 의미
+
+### REDO Log
+
+- Crash 후에 commit 된 변경 사항들을 REDO (replay) 할 때 사용
+  - 모든 액션은 REDO Log Record 를 생성 (new 값을 포함)
+  - Disk 에 업데이트 하기 전 Log Recored 를 Disk 에 적음 (WAL)
+  - 모든 Log Record 를 commit 할 때 flush
+  - 체인지가 Disk 에 반영된 후에 End Log Record 를 Write
+
+## 3-3) Checkpoint
+
+- REDO Log 를 실행할 때 처음 로그를 찍은 시점부터 시작을 하면 시간이 오래 걸린다
+- 따라서 DBMS 는 주기적으로 스냅샷이라고 하는 Checkpoint를 생성. 이전의 로그들은 Truncate 하거나 백업
+- 시스템 충돌 시 복구에 걸리는 시간을 최소화 한다.
+
+### Fuzzy Checkpoint
+
+- Checkpoint 하는 동안 다른 Operation Block 을 오래 하는 것을 막기 위해 Checkpoint 할 때 UPDATE 를 허용하는 방식
