@@ -187,7 +187,7 @@ index_type : HASH, BTREE
   - 아예 해당 Leaf Node 를 지우고 Sibling Node 로 남아있는 key 값을 넘기거나
   - Sibling Node 의 포인터 개수가 여유 있는 경우 해당 Leaf Node 를 남기고 Sibling Node 에 있는 키값을 넘긴다
 ### <2> Redistribute Key
-- key 의 조정이 이뤄지는 경우
+- key 의 조정이 이뤄지는 경우 
 - 위에서 처럼 key 값이 넘어가고 그럴 때마다 Non Leaf 의 키값이 계속 조정된다
 
 ### <3> Non-Leaf Coalesce
@@ -195,3 +195,24 @@ index_type : HASH, BTREE
 - 그런 경우에는 Leaf Node 처럼 키값을 옮긴다
 - 하다 보면 Root Node 가 의미 없어지는 경우가 발생해서 새로운 Root Node 를 만들기도 한다
 
+
+# 4. Hash Index
+- key 에 대한 hash 함수를 사용해 데이터 위치를 찾는 Index
+- Index Entry 들이 Bucket 단위로 저장
+- Hashing 은 Tree Index 와 다르게 Search 함수를 쓰기에 key 로 바로 Entry 를 찾을 수 있어서 Exact Search 를 할 때 많이 사용한다. 
+- Range Search 나 Sorting 을 할 때는 사용하지 않는다
+- Bucket 할당하는 방법
+  - 1) Static Hashing : Bucket 을 고정된 수로 할당
+  - 2) Dynamic Hashing : 데이터 양에 따라 가변적으로 Bucket 개수를 늘려감
+
+## 4-1) Static Hashing
+- Hash 함수의 결과에 Bucket 수로 Mod 연산해서 위치를 결정
+- Bucket 수가 미리 정해져 있기에 Overflow 가 발생할 수 있다
+  - Overflow chaining : Linked list 형태로 같은 Hash key 를 갖는 Bucket 과 연결
+  - Linked List 의 길이가 길어지면 성능 문제가 발생한다
+- Mod 연산으로 바로 찾기에 빠르게 찾을 수 있다 (Overflow 가 나지 않는다면)
+
+## 4-2) Dynamic Hashing
+- Static Hashing 과 달리 Bucket 수를 동적으로 변경하면서 Hashing
+- Hashing 함수의 결과를 Binary 로 표현해서 Bucket 할당에 Binary prefix 를 사용한다.
+- Bucket 이 Oveflow 가 발생하면 Hash 함수의 prefix 를 늘려가면서 Bucket 개수를 늘리는 것
