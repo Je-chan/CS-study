@@ -177,3 +177,21 @@ index_type : HASH, BTREE
 ### <4> New Root Case
 
 - Non-Leaf 와 비슷하게 올라간다.
+
+## 3-3) Delete from B+ Tree
+### <1> Leaf Node
+- 불필요한 empty node 를 만들지 않기 위해 적어도 다음의 개수의 Pointer 를 갖게 된다
+- Non-Leaf : (n + 1) / 2 이하
+- Leaf : (n + 1) / 2 이상 
+- 만약에 삭제한 후 Leaf Node 에서 포인터의 개수가 위의 개수보다 줄어든다고 한다면 
+  - 아예 해당 Leaf Node 를 지우고 Sibling Node 로 남아있는 key 값을 넘기거나
+  - Sibling Node 의 포인터 개수가 여유 있는 경우 해당 Leaf Node 를 남기고 Sibling Node 에 있는 키값을 넘긴다
+### <2> Redistribute Key
+- key 의 조정이 이뤄지는 경우
+- 위에서 처럼 key 값이 넘어가고 그럴 때마다 Non Leaf 의 키값이 계속 조정된다
+
+### <3> Non-Leaf Coalesce
+- Redistribute Key 가 일어나면서 Non Leaf Node 도 포인터 개수 제약에 위배되는 경우가 발생할 수 있다
+- 그런 경우에는 Leaf Node 처럼 키값을 옮긴다
+- 하다 보면 Root Node 가 의미 없어지는 경우가 발생해서 새로운 Root Node 를 만들기도 한다
+
