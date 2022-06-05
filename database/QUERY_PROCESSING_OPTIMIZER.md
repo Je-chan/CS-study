@@ -35,3 +35,40 @@
 - 두 Relational algebra expression 이 같은 결과의 튜플 셋을 만들어 내는 경우 Equivalent 하다고 한다
 - Equivalnece Rules 라는 총 11개의 rule 이 있다 
   - 그 rule 에 맞춰 candidate plan 을 만들고 가장 cost 가 낮은 것을 사용한다
+
+# 2. Selection Operators
+## 2-1) Selection Strategies
+
+### <1> Linear Search
+- Full table scan
+- 데이터가 저장된 모든 disk block 을 읽어서 하나하나 스캔하는 것
+- Index 가 없는 경우
+
+### <2> Binary Search (B+ Tree Idnex)
+- Exact Matches : 정확하게 Value 를 찾아내는 것
+- Multiple Matches : 정확하게 여러 Value 를 찾아내는 것
+- Range Queries : between 과 같이 Query 의 결과가 Range 인 것
+- Complex Queries : Range 보다 더 복잡한 식을 포함하고 있는 것. 단지 하나의 결과만 뽑아 내는 것이 아닌 경우
+
+### Index 를 이용한 Search 
+- Index access 를 위한 disk block access 와 실제 data block access 가 필요하긴 함
+- 하지만 일반 query 에서 전체 full table scan 에 비해 access 횟수가 훨씬 적다
+
+## 2-2) Join Strategies
+- Join의 경우, 세 가지 형태로 Execution Plan 이 만들어진다.
+### <1> Nested Loop join
+- 조인을 순차적으로 수행하면서 데이터에 random access 
+- inner table 에 조인을 위한 index 가 필요 
+- 비용 : Outer table 카디널리티 * Inner table 의 access count
+
+### <2> Merge Join (Sort Merge Join)
+- 데이터에 Random Access 하지 않고 스캔을 수행
+- 양쪽 테이블 처리 범위를 각자 접근해 정렬한 결과를 차례대로 스캔
+- 인덱스가 존재하지 않고 Exact 가 아니고 조인 연사자가 "=" 가 아닌 경우 좋은 성능
+
+### <3> Hash Join
+- 내부적으로 hash 테이블을 만들어서 수행
+- 테이블을 새롭게 생성하는 비용이 발생하기에 한 쪽 테이블이 작을 때 사용한다
+- 두 테이블 중 작은 테이블에 대해 hash 테이블 생성 
+- 큰 테이블을 스캔하면서 hash table 을 조회하며 join
+- hash table 생성 cost 가 추가되기에 join 대상 테이블이 작을 때 유리 
