@@ -72,3 +72,24 @@
 - 두 테이블 중 작은 테이블에 대해 hash 테이블 생성 
 - 큰 테이블을 스캔하면서 hash table 을 조회하며 join
 - hash table 생성 cost 가 추가되기에 join 대상 테이블이 작을 때 유리 
+
+# 3. Optimizer
+- Optimizer 방식은 Bottom-Up(B-U) 과 Top-Down(T-D) 두 가지로 나뉜다. 
+
+## 3-1) Heuristic-based Optimization (B-U)
+- Logical Operator 를 Physical plan 으로 바꾸는 Static Rule 을 이용
+  - 가장 제한적인 Selection 먼저 수행
+  - Join 전에 모든 Selection 수행
+  - Predicate / Limit / Projection 은 Selection 으로 모두 Push down
+    - Prdicate 는 가장 먼저 하는 것이 이론상 효율적
+  - 카디널리티를 기준으로 Join Ordering
+
+## 3-2) Heuristic + Cost based Optimization (B-U)
+- 기존의 Static Rule 로 Initial Optimization 수행
+- 그 다음 좋은 Join Ordering 을 결정하기 위해 dynamic programming 수행
+  - 첫 번째 cost-based optimizer
+  - divide and conquer 방식을 이용한 Bottom-up planning
+- Bottom-Up 에서 가장 많이 사용하는 방식
+- System R, 초기의 IBM DB2 등 대부분의 오픈 소스 데이터베이스들이 이 방식을 사용
+
+## 3-3) 
