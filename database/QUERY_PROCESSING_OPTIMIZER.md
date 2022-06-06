@@ -75,6 +75,12 @@
 
 # 3. Optimizer
 - Optimizer 방식은 Bottom-Up(B-U) 과 Top-Down(T-D) 두 가지로 나뉜다. 
+  - Bottom-Up
+    - 아무것도 없는 상태에서 시작해 plan 을 시작부터 만들어 가면서 원하는 최종 plan 을 만드는 형식
+    - System R, Starburst 등
+  - Top-Down
+    - 최종 Logical plan 을 갖고 plan tree 를 내려가며 alternative plan 과 비교하며 cost 를 계산하고 optima plan 을 계산
+    - Volcano, Cascades 등
 
 ## 3-1) Heuristic-based Optimization (B-U)
 - Logical Operator 를 Physical plan 으로 바꾸는 Static Rule 을 이용
@@ -91,5 +97,27 @@
   - divide and conquer 방식을 이용한 Bottom-up planning
 - Bottom-Up 에서 가장 많이 사용하는 방식
 - System R, 초기의 IBM DB2 등 대부분의 오픈 소스 데이터베이스들이 이 방식을 사용
+### System R Optimizer
+- query 를 blocks 로 나누고 각 block 을 위한 Logical operator 들을 생성
+- 각 logical operator fmf dnlgks physical operator 의 모든 가능한 join path 와 access path 의 조합을 set 으로 생성
+- 반복적으로 cost 를 계산하면서 가장 cost 가 작은 Plan 의 left-deep tree 를 만든다
 
-## 3-3) 
+## 3-3) Volcano Optimizer (T-D)
+- 관계 대수의 equivalence rule 을 기본으로 하는 cost-based optimizer
+- 핵심은 먼저 plan 을 빠른 방법으로 만들어 놓고 alternative 방식을 찾고 바꿔가면서 좋은 plan 을 찾는 것
+- 새로운 operator 와 equivalence rule 을 추가하기 쉽다
+- branch and bound 방법을 사용해 top-down 방식으로 optimal plan 을 고른다
+- 일단 logical plan 에 대한 가능한 physical plan 을 고르고 그 다음 alternatice plan 을 찾아 비교한다
+- Memo table 을 이용하여 equivalent operator 를 저장한다
+
+## 3-4) Cascade optimizer (T-D)
+- Object-oriented implementation of Volcano 
+- SQL server 에서 사용하는 중
+
+## 3-5) 결론
+- Optimizer 에 의해서 query optimization 은 매우 어려운 문제
+- 알고리즘으로 완벽하게 구현한다는 것은 거의 불가능
+- DBMS 는 휴리스틱과 지정된 코스트를 가지고 optimal 하다고 할만 한 plan 을 찾는 것
+- DBMS 는 Optimizer 의 역할을 보완하기 위한 기능을 제공
+  - SQL Hint (힌트에 맞춰서 plan 을 짤 수 있도록 하는 것)
+  - Plan Stability (저장된 old 버전의 plan 을 사용. 새로운 plan 이 예전의 plan 보다 좋은 것은 아님. trade-off 된 것뿐)
