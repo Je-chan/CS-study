@@ -28,7 +28,7 @@
         
         
 ## 1-3) 관계 데이터 모델과 SQL 의 용어
-- Relation = Tuple
+- Relation = Table
 - Tuple = Row
 - Attribute = Column
 - Relational Schema = Table Schema
