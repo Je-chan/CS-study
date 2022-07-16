@@ -69,3 +69,46 @@
 ### Mesh Topology
 - 하나의 장비가 여러 회선을 가지고 다수의 장비에 연결할 수 있다
 - 가장 빠르지만 설치 비용이 커진다
+
+# 2. 네트워크 계층별 역할
+## 2-1) OSI 7 Layer VS TCP/IP
+- 네트워크의 표준이 만들어지기 전, 사실상 표준 TCP/IP 
+  - TCP/IP 는 리눅스 운영체제에서 출발. 
+  - 자주 사용하던 프로토콜 스택을 기반으로 OSI 7 계층을 만들게 됨
+
+### Physical
+- Physical
+  - 가장 하위. 
+  - 2진 비트의 나열로 Signal 처리
+- Datalink
+  - 두 Node 의 흐름을 제어
+
+### Network
+- Network
+  - 해당 주소 체계에 따라 경로를 설정
+  - IP Address 를 갖고 있기 때문에 이 계층에는 IPv4 와 IPv6 가 사용됨
+
+### Transport
+- Transport
+  - 양쪽 끝 간의 신뢰성을 보장
+  - TCP/UDP 등의 프로토콜을 추가로 갖게 됨
+
+### Application
+- Session
+  - 프로그래머의 역할이 필요
+  - 프로그램 간의 논리적 접속
+- Presentation
+  - 프로그래머의 역할이 필요
+  - 문법, 구문, 체계 등을 확립
+- Application
+  - Email, Web 브라우저, ping, FTP 등
+
+## 2-2) 종단 간의 연결 (간단 비유)
+- (1) Application : 데이터를 받음
+- (2) Transport : 데이터를 포장
+- (3) Network : 포장된 데이터에 주소를 덧붙이기
+- (4) Datalink : 하드웨어 끼리의 주소를 덧붙이기
+- (5) Physical : 1과 0의 형태의 이진 값으로 데이터를 전송 시작
+- (6) 경로를 제대로 파악하기 위해 Physical -> Datalink -> Network 까지 풀어 헤쳤다가 다음 경로로 보냄
+- (7) 원하는 종단에 도착할 때까지 (6) 의 과정을 반복적으로 거침
+- (8) 원하는 종단에 도착하면 Application 까지 풀어서 Data 를 전송 받음
