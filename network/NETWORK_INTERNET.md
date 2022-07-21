@@ -244,3 +244,25 @@ ex) 물리주소 10인 노드가 물리주소 87인 노드에 프레임을 보�
 ### SCTP (Stream Control Transmission Protocol)
 - SCTP 는 UDP 와 TCP 를 적절히 섞어 놓는 것
 - 비연결형 서비스에 다중 연결을 지원하는 새롭게 설계된 프로토콜
+
+# 7. 응용 계층 (Application Layer)
+## 7-1) 기능
+- 사용자가 네트워크에 접근할 수 있도록 해줌
+- 사용자 인터페이스를 제공
+- 서비스
+  - 원격 로그인, 파일 액세스, 전송, 관리, 메일 서비스, Http www 등
+
+## 7-2) 프로토콜 및 프로그램
+- FTP : File Transfer Protocol
+- Telnet
+- SMTP (Simple Mail Transfer Protocol)
+  - 메일 관련
+- DNS (Domain Name System)
+  - 주소를 치면 IP Address 를 가져옴
+- Http
+- DHCP
+  - 동적 IP 할당
+- Ping
+  - 상대방이 살아 있는지를 보내는 것
+- Tcpdump
+- Tracerouter
