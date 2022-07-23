@@ -69,3 +69,54 @@
   - DATA
 꼬리
 - FCS (4byte)
+
+
+# 2. 레지스터와 네트워크 드라이버
+## 2-1) 레지스터 기본 접근 방법
+- PacketPage Pointer Port 를 통해 접근
+- 기본 주소 (base address) + 0X000A(ADD_PORT) 를 더해서 결정
+- 레지스터에 있는 데이터를 읽기 위해서는 이 PacketPage Pointer Port 에 먼저 레지스터의 offset 을 쓰고, data port 를 통해서 읽어 온다
+- 쓰는 것도 PacketPage Pointer Port 에 먼저 레지스터의 offset 을 쓰고 나서, data port에 쓸 내용을 적어서 처리
+
+## 2-2) Packet Page Address
+아래의 주소들을 사용해서 디바이스 칩에 접근한다
+- 0000h ~ 0045h : Bus Interface Register
+  - ISA 버스를 이용해 호스트 시스템 혹은 I/O 메모리에 맵핑
+  - 초기 설정 후 작동 중에는 변경하지 않음 
+- 0100h ~ 013Fh : Status and Control Register
+  - 레지스터의 상태를 얻거나 주요 제어를 담당
+- 0140h ~ 014Fh : Initiate Transmit Register
+  - 이더넷 프레임을 전송할 때 초기화 시 사용
+- 0150h ~ 015Dh : Address Filter Register
+  - 원격 주소 필터에 의해 사용
+- 0400h : Receive Frame Location
+  - 이더넷 프레임을 호스트로부터 전송할 때 사용
+- 0A00h : Transmit Frame Location
+  - 마찬가지로 호스트로부터 전송할 때 사용
+
+## 2-3) Network Protocol Stack
+### Low -> High 순
+- Ethernet H/W (Physical)
+Kernerl (OS가 제공)
+- Network Device Driver
+  - => IP
+  - => TCP / UDP
+  - => INET socket Interface
+    - 인터넷 기기종간의 통신
+  - => BSD socket Interface
+    - 로컬 네트워크로 사용하는 옵션 인터페이스
+Application
+- Applciation 
+
+## 2-4) 커널 부팅과 네트워크 디바이스 드라이버
+- 커널 초기화 과정
+  - 네트워크 디바이스 드라이버가 커널에 올라가 동작 대기
+- 등록된 네트워크 디바이스 드라이버 확인 (Linux)
+  ```shell
+  cat /proc/net/dev
+  ```
+- ifconfig 명령
+  - 네트워크 디바이스를 활성화 하거나 비활성화
+```shell
+ifconfig [interface] [ip] [netmask mask] [up | down]
+```
