@@ -120,3 +120,18 @@ Application
 ```shell
 ifconfig [interface] [ip] [netmask mask] [up | down]
 ```
+
+## 2-4) 네트워크 요소
+- 인터페이스 이름
+  - lo : 루프백 Address. 127.0.0.1 사용을 위한 논리적인 소프트웨어 주소
+  - dummy0, eth0 등
+- 인터페이스 타입
+  - ethernet, isdn, adsl 과 같은 네트워크 형태
+  - ifconfig -a 명령 시 Link encap 항목에서 확인
+- 하드웨어 주소
+  - 이더넷 하드웨어 MAC 주소
+- 네트워크 주소
+  - TCP/IP 에서 사용을 위한 IP 주소
+- 데이터 처리 능력
+  - 한 프레임을 전송할 수 있는 데이터량을 MTU라고 함. 패킷을 전송할 때 분할 기준이 됨
+  - 송신 시 네트워크 디바이스가 바쁠 때, 시스템에 대기할 수 있는 큐의 크기는 txqueuelen 으로 표기됨
