@@ -198,3 +198,17 @@ ifconfig [interface] [ip] [netmask mask] [up | down]
 - struct file_operations
 - 최종적으로 Virtual File System 이라고 하는 파일처럼 다루는 Layer 가 존재
 - 실제 파일은 아니지만 파일이라는 형태로 취할 수 있도록 추상화 하는 것
+
+## 3-5) Socket Buffer
+- 보낼 데이터는 버퍼로 저장돼 있음
+
+### <linux/skbuff.h> 에 정의된 sk_buff 구조체의 주요 필드
+- struct net_device *dev;
+  - 소켓 버퍼는 버퍼를 주고 받을 dev 를 지정하는 필드를 가지고 있다
+- unsigned char *head
+- unsigned char *data
+- unsigned char *tail
+- unsigned char *end
+
+- 사용 가능한 주소 영역 : skb->end - skb->head
+- 사용중인 자료 영역 : skb->tail - skb->data
